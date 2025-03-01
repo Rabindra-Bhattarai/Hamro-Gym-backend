@@ -5,7 +5,7 @@ const authRoutes = require('./routes/authRoutes');
 const memberRoutes = require('./routes/memberRoutes');
 const classRoutes = require('./routes/classRoutes');
 const userRoutes =require('./routes/userRoutes');
-const ScheduledClassesRoutes = require('./routes/ScheduledClassesRoutes')
+const ScheduledClassesRoutes = require('./routes/scheduleRoutes')
 require('dotenv').config();
 
 const app = express();
