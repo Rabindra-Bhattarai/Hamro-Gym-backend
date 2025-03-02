@@ -26,9 +26,6 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             defaultValue: 0,
         },
-        memberId: {  // Changed to a normal string
-            type: DataTypes.STRING, // Change this to STRING
-            allowNull: false, // You can set this to true or false based on your requirements
-        },
+        
     });
 };

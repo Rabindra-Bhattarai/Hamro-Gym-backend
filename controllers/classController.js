@@ -3,14 +3,13 @@ const { db } = require('../models');
 exports.createClass = async (req, res) => {
     const { name, date, time, duration, maxCapacity } = req.body;
     try {
-        const memberId = req.user.id; // Get member ID from JWT (if applicable)
         const gymClass = await db.Class.create({ 
             name, 
             date, 
             time, 
             duration, 
             maxCapacity, 
-            memberId // Store memberId if needed
+            currentCapacity: 0 // Initialize current capacity to 0
         });
         res.status(201).json({ message: 'Class created', gymClass });
     } catch (error) {
@@ -28,7 +27,7 @@ exports.getClasses = async (req, res) => {
 };
 
 exports.joinClass = async (req, res) => {
-    const { classId, memberId } = req.params; // Get class ID and member ID from URL parameters
+    const { classId, memberId } = req.params;
 
     try {
         const gymClass = await db.Class.findByPk(classId);
@@ -41,7 +40,6 @@ exports.joinClass = async (req, res) => {
         }
 
         gymClass.currentCapacity += 1;
-        gymClass.memberId = memberId; // Assign memberId to the class
         await gymClass.save();
 
         res.json({ message: 'Joined class successfully', gymClass });
@@ -50,15 +48,40 @@ exports.joinClass = async (req, res) => {
     }
 };
 
-exports.deleteClass = async (req, res) => {
-    const { classId } = req.params; // Get class ID from URL parameters
+exports.updateClass = async (req, res) => {
+    const { classId } = req.params;
+    const { name, date, time, duration, maxCapacity } = req.body;
+
     try {
         const gymClass = await db.Class.findByPk(classId);
         if (!gymClass) {
             return res.status(404).json({ message: 'Class not found' });
         }
 
-        await gymClass.destroy(); // Delete the class
+        // Update class details
+        gymClass.name = name || gymClass.name;
+        gymClass.date = date || gymClass.date;
+        gymClass.time = time || gymClass.time;
+        gymClass.duration = duration || gymClass.duration;
+        gymClass.maxCapacity = maxCapacity || gymClass.maxCapacity;
+
+        await gymClass.save();
+
+        res.json({ message: 'Class updated successfully', gymClass });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.deleteClass = async (req, res) => {
+    const { classId } = req.params;
+    try {
+        const gymClass = await db.Class.findByPk(classId);
+        if (!gymClass) {
+            return res.status(404).json({ message: 'Class not found' });
+        }
+
+        await gymClass.destroy();
         res.json({ message: 'Class deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -67,7 +90,7 @@ exports.deleteClass = async (req, res) => {
 
 // New function to fetch joined classes
 exports.getJoinedClasses = async (req, res) => {
-    const memberId = req.user.id; // Get member ID from JWT
+    const memberId = req.user.id;
     try {
         const joinedClasses = await db.Class.findAll({
             where: { memberId: memberId }
@@ -80,7 +103,7 @@ exports.getJoinedClasses = async (req, res) => {
 
 // New function to fetch unjoined classes
 exports.getUnjoinedClasses = async (req, res) => {
-    const memberId = req.user.id; // Get member ID from JWT
+    const memberId = req.user.id;
     try {
         const allClasses = await db.Class.findAll();
         const joinedClasses = await db.Class.findAll({

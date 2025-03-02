@@ -3,6 +3,7 @@ const {
     createClass,
     getClasses,
     joinClass,
+    updateClass,
     deleteClass,
     getJoinedClasses,
     getUnjoinedClasses
@@ -17,16 +18,15 @@ router.post('/', verifyToken, createClass);
 // Get all classes (any user)
 router.get('/', verifyToken, getClasses);
 
-// Join a class (member only) - updated to include memberId in the route
+// Join a class (member only)
 router.post('/join/:classId/:memberId', verifyToken, joinClass);
+
+// Update a class (staff only)
+router.put('/:classId', verifyToken, updateClass);
 
 // Delete a class (staff only)
 router.delete('/:classId', verifyToken, deleteClass);
 
-// Get joined classes (member only)
-router.get('/joined', verifyToken, getJoinedClasses);
 
-// Get unjoined classes (member only)
-router.get('/unjoined', verifyToken, getUnjoinedClasses);
 
 module.exports = router;
